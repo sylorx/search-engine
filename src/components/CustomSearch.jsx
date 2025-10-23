@@ -19,19 +19,19 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
   };
 
   return (
-    <div className="card bg-gradient-to-br from-white to-primary-50 border-2 border-primary-200 sticky top-4 z-20">
+    <div className="card bg-gradient-to-br from-white to-primary-50 dark:from-slate-800 dark:to-slate-700 border-2 border-primary-200 dark:border-primary-700 sticky top-4 z-20 animate-slideUp">
       <div className="flex items-center mb-6">
-        <Sparkles className="w-8 h-8 text-primary-600 mr-3" />
+        <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400 mr-3" />
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Özel Arama Oluştur</h2>
-          <p className="text-sm text-slate-600">Seçili: {template.title}</p>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Özel Arama Oluştur</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Seçili: {template.title}</p>
         </div>
       </div>
 
       <div className="space-y-4">
         {/* Keyword Input */}
         <div className="relative">
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
             Anahtar Kelime
           </label>
           <input
@@ -47,7 +47,7 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
           {/* Keyword Suggestions */}
           {showSuggestions && template.keywords.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-2 glass-effect rounded-lg p-3 max-h-48 overflow-y-auto z-30">
-              <p className="text-xs font-semibold text-slate-600 mb-2">Önerilen Kelimeler:</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Önerilen Kelimeler:</p>
               <div className="flex flex-wrap gap-2">
                 {template.keywords.map((kw, index) => (
                   <button
@@ -66,7 +66,7 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
         {/* Year Input (if needed) */}
         {template.hasYearInput && (
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center">
               <Calendar className="w-4 h-4 mr-2" />
               Tarih (Bu yıldan önce)
             </label>
@@ -94,9 +94,9 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
 
         {/* Generated Query Display */}
         {generatedQuery && (
-          <div className="mt-6 p-4 bg-slate-800 rounded-lg">
+          <div className="mt-6 p-4 bg-slate-800 dark:bg-slate-900 rounded-lg animate-fadeIn">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-slate-300">Oluşturulan Sorgu:</span>
+              <span className="text-sm font-semibold text-slate-300 dark:text-slate-200">Oluşturulan Sorgu:</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => onCopy(generatedQuery, 'generated')}
@@ -121,9 +121,9 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
         )}
 
         {/* Template Preview */}
-        <div className="mt-4 p-4 bg-slate-100 rounded-lg">
-          <p className="text-xs font-semibold text-slate-600 mb-2">Şablon Önizleme:</p>
-          <code className="block text-xs text-slate-700 font-mono break-all">
+        <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Şablon Önizleme:</p>
+          <code className="block text-xs text-slate-700 dark:text-slate-200 font-mono break-all">
             {template.template}
           </code>
         </div>

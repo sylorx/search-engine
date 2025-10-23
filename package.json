@@ -2,6 +2,7 @@
   "name": "advanced-google-search",
   "version": "1.0.0",
   "description": "Gelişmiş Google Dosya Arama Aracı",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",

@@ -4,29 +4,57 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 min-h-screen transition-colors duration-500;
+  }
+  
+  body.dark {
+    @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
   }
 }
 
 @layer components {
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-xl;
+    @apply bg-white/90 backdrop-blur-xl border border-white/30 shadow-2xl;
+  }
+  
+  .dark .glass-effect {
+    @apply bg-slate-800/90 border-slate-700/50;
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105;
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95;
   }
   
   .btn-secondary {
-    @apply bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-slate-200;
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200 transform hover:scale-105 active:scale-95;
+  }
+  
+  .dark .btn-secondary {
+    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-600;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all duration-200;
+    @apply w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-200 outline-none transition-all duration-300 bg-white;
+  }
+  
+  .dark .input-field {
+    @apply bg-slate-700 border-slate-600 text-slate-100 focus:border-primary-400 focus:ring-primary-900;
   }
   
   .card {
-    @apply glass-effect rounded-xl p-6 hover:shadow-2xl transition-all duration-300;
+    @apply glass-effect rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2;
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
   }
 }
 
@@ -45,4 +73,43 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary-500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
 }

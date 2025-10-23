@@ -131,14 +131,87 @@ export const searchTemplates = [
     template: '(intitle:"index of" OR inurl:backup OR inurl:downloads OR inurl:archives) (filetype:pdf OR filetype:rar OR filetype:zip OR filetype:iso OR filetype:7z OR filetype:mp4 OR filetype:mp3 OR filetype:doc OR filetype:xls OR filetype:ppt) "{keyword}"',
     keywords: ["old", "eski", "archive", "collection", "backup", "full version"],
     color: "from-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
+  },
+  {
+    id: 14,
+    category: "E-Kitaplar",
+    icon: "BookOpen",
+    title: "E-Kitap ve Dijital Kitaplar",
+    description: "PDF, EPUB, MOBI formatında e-kitaplar",
+    template: '(filetype:pdf OR filetype:epub OR filetype:mobi) "{keyword}" "book" OR "kitap" OR "ebook"',
+    keywords: ["roman", "hikaye", "tarih", "bilim", "felsefe", "edebiyat"],
+    color: "from-emerald-500 to-teal-600"
+  },
+  {
+    id: 15,
+    category: "Yazılım",
+    icon: "Download",
+    title: "Yazılım ve Program İndirme",
+    description: "Setup dosyaları ve kurulum programları",
+    template: '(filetype:exe OR filetype:msi OR filetype:dmg) "{keyword}" "setup" OR "installer" OR "download"',
+    keywords: ["software", "program", "tool", "utility", "application"],
+    color: "from-cyan-500 to-blue-600"
+  },
+  {
+    id: 16,
+    category: "Kurslar",
+    icon: "Video",
+    title: "Online Kurslar ve Eğitimler",
+    description: "Video dersler ve eğitim materyalleri",
+    template: 'intitle:"index of" (filetype:mp4 OR filetype:mkv) "{keyword}" "course" OR "tutorial" OR "lesson"',
+    keywords: ["programming", "design", "language", "music", "art"],
+    color: "from-orange-500 to-red-500"
+  },
+  {
+    id: 17,
+    category: "Şablonlar",
+    icon: "FileText",
+    title: "Şablon ve Doküman Örnekleri",
+    description: "CV, sunum, rapor şablonları",
+    template: '(filetype:docx OR filetype:pptx OR filetype:xlsx) "{keyword}" "template" OR "şablon" OR "örnek"',
+    keywords: ["cv", "resume", "presentation", "report", "invoice"],
+    color: "from-pink-500 to-rose-600"
+  },
+  {
+    id: 18,
+    category: "Veri Setleri",
+    icon: "Database",
+    title: "Veri Setleri ve CSV Dosyaları",
+    description: "Açık veri setleri ve istatistikler",
+    template: '(filetype:csv OR filetype:json OR filetype:xml) "{keyword}" "dataset" OR "data" OR "statistics"',
+    keywords: ["population", "economy", "weather", "sports", "finance"],
+    color: "from-indigo-500 to-blue-600"
+  },
+  {
+    id: 19,
+    category: "Font",
+    icon: "Type",
+    title: "Font ve Yazı Tipleri",
+    description: "TTF, OTF font dosyaları",
+    template: '(filetype:ttf OR filetype:otf OR filetype:woff) "{keyword}" "font" OR "typeface"',
+    keywords: ["serif", "sans-serif", "handwriting", "display", "monospace"],
+    color: "from-purple-500 to-violet-600"
+  },
+  {
+    id: 20,
+    category: "3D Modeller",
+    icon: "Box",
+    title: "3D Model Dosyaları",
+    description: "OBJ, FBX, STL 3D modeller",
+    template: '(filetype:obj OR filetype:fbx OR filetype:stl OR filetype:blend) "{keyword}" "3d model" OR "mesh"',
+    keywords: ["character", "building", "vehicle", "furniture", "weapon"],
+    color: "from-lime-500 to-green-600"
   }
 ];
 
 export const quickSearches = [
-  { label: "Eski Oyunlar", query: '(filetype:iso OR filetype:zip OR filetype:rar) "old game" OR "full version" OR "setup"' },
-  { label: "Ders Notları", query: 'site:edu OR site:ac.tr filetype:pdf "ders notu" OR "lecture notes"' },
-  { label: "Eski Filmler", query: 'filetype:mp4 OR filetype:avi "old movie" OR "classic film"' },
-  { label: "Müzik Arşivi", query: 'filetype:mp3 OR filetype:flac "album" OR "collection"' },
-  { label: "E-Kitaplar", query: 'filetype:pdf OR filetype:epub "book" OR "kitap" OR "ebook"' },
-  { label: "Yazılım Arşivi", query: 'intitle:"index of" (filetype:zip OR filetype:rar) "software" OR "program"' },
+  { label: "Eski Oyunlar", query: '(filetype:iso OR filetype:zip OR filetype:rar) "old game" OR "full version" OR "setup"', icon: "Gamepad2" },
+  { label: "Ders Notları", query: 'site:edu OR site:ac.tr filetype:pdf "ders notu" OR "lecture notes"', icon: "BookOpen" },
+  { label: "Eski Filmler", query: 'filetype:mp4 OR filetype:avi "old movie" OR "classic film"', icon: "Film" },
+  { label: "Müzik Arşivi", query: 'filetype:mp3 OR filetype:flac "album" OR "collection"', icon: "Music" },
+  { label: "E-Kitaplar", query: 'filetype:pdf OR filetype:epub "book" OR "kitap" OR "ebook"', icon: "BookOpen" },
+  { label: "Yazılım Arşivi", query: 'intitle:"index of" (filetype:zip OR filetype:rar) "software" OR "program"', icon: "Package" },
+  { label: "Ücretsiz Kurslar", query: 'intitle:"index of" filetype:mp4 "course" OR "tutorial" "free"', icon: "GraduationCap" },
+  { label: "CV Şablonları", query: 'filetype:docx "cv template" OR "resume template"', icon: "FileText" },
+  { label: "Wallpaper", query: 'filetype:jpg OR filetype:png "wallpaper" "4k" OR "hd"', icon: "Image" },
 ];

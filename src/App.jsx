@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Sparkles, Copy, ExternalLink, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Sparkles, Moon, Sun, History, Star, Filter, X, TrendingUp, Info } from 'lucide-react';
 import SearchCard from './components/SearchCard';
 import QuickSearch from './components/QuickSearch';
 import CustomSearch from './components/CustomSearch';
@@ -11,6 +11,69 @@ function App() {
   const [generatedQuery, setGeneratedQuery] = useState('');
   const [showInfo, setShowInfo] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // Load from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    const savedHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    setDarkMode(savedDarkMode);
+    setSearchHistory(savedHistory);
+    setFavorites(savedFavorites);
+    
+    if (savedDarkMode) {
+      document.body.classList.add('dark');
+    }
+  }, []);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('darkMode', newMode);
+    document.body.classList.toggle('dark');
+  };
+
+  // Add to search history
+  const addToHistory = (query, template) => {
+    const historyItem = {
+      query,
+      template: template.title,
+      timestamp: new Date().toISOString(),
+      id: Date.now()
+    };
+    const newHistory = [historyItem, ...searchHistory].slice(0, 20);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+
+  // Toggle favorite
+  const toggleFavorite = (template) => {
+    const isFavorite = favorites.some(fav => fav.id === template.id);
+    let newFavorites;
+    
+    if (isFavorite) {
+      newFavorites = favorites.filter(fav => fav.id !== template.id);
+    } else {
+      newFavorites = [...favorites, template];
+    }
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+  };
+
+  // Clear history
+  const clearHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  };
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
@@ -26,6 +89,7 @@ function App() {
     }
     
     setGeneratedQuery(query);
+    addToHistory(query, selectedTemplate);
   };
 
   const copyToClipboard = (text, id = null) => {
@@ -41,21 +105,109 @@ function App() {
     window.open(`https://www.google.com/search?q=${encodedQuery}`, '_blank');
   };
 
+  // Filter templates
+  const filteredTemplates = categoryFilter === 'all' 
+    ? searchTemplates 
+    : categoryFilter === 'favorites'
+    ? searchTemplates.filter(t => favorites.some(f => f.id === t.id))
+    : searchTemplates.filter(t => t.category === categoryFilter);
+
+  const categories = ['all', 'favorites', ...new Set(searchTemplates.map(t => t.category))];
+
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 px-4 transition-colors duration-500">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 animate-slideUp">
           <div className="flex items-center justify-center mb-4">
-            <Sparkles className="w-12 h-12 text-primary-600 mr-3" />
+            <Sparkles className="w-12 h-12 text-primary-600 mr-3 animate-bounce-slow" />
             <h1 className="text-5xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               Gelişmiş Google Arama
             </h1>
           </div>
-          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-300 text-lg max-w-2xl mx-auto">
             Google'ın gücünü kullanarak istediğiniz dosyaları, belgeleri ve arşivleri kolayca bulun
           </p>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <button
+              onClick={toggleDarkMode}
+              className="btn-secondary py-2 px-4 flex items-center gap-2"
+              title={darkMode ? 'Açık Mod' : 'Karanlık Mod'}
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? 'Açık Mod' : 'Karanlık Mod'}
+            </button>
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="btn-secondary py-2 px-4 flex items-center gap-2 relative"
+              title="Arama Geçmişi"
+            >
+              <History className="w-5 h-5" />
+              Geçmiş
+              {searchHistory.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {searchHistory.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowFavorites(!showFavorites)}
+              className="btn-secondary py-2 px-4 flex items-center gap-2 relative"
+              title="Favoriler"
+            >
+              <Star className="w-5 h-5" />
+              Favoriler
+              {favorites.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {favorites.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* History Panel */}
+        {showHistory && searchHistory.length > 0 && (
+          <div className="card mb-8 animate-fadeIn">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <History className="w-6 h-6 text-primary-600" />
+                Arama Geçmişi
+              </h3>
+              <div className="flex gap-2">
+                <button onClick={clearHistory} className="text-red-600 hover:text-red-700 text-sm font-semibold">
+                  Temizle
+                </button>
+                <button onClick={() => setShowHistory(false)} className="text-slate-600 hover:text-slate-700">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {searchHistory.map((item) => (
+                <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{item.template}</p>
+                      <code className="text-xs text-slate-600 dark:text-slate-300 block mt-1 break-all">{item.query}</code>
+                    </div>
+                    <button
+                      onClick={() => openGoogleSearch(item.query)}
+                      className="ml-2 text-primary-600 hover:text-primary-700 text-sm"
+                    >
+                      Ara
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    {new Date(item.timestamp).toLocaleString('tr-TR')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Info Banner */}
         {showInfo && (
@@ -102,19 +254,67 @@ function App() {
           </div>
         </div>
 
-        {/* Search Templates */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">Arama Kategorileri</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {searchTemplates.map((template) => (
-              <SearchCard
-                key={template.id}
-                template={template}
-                isSelected={selectedTemplate?.id === template.id}
-                onSelect={handleTemplateSelect}
-              />
+        {/* Category Filter */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-5 h-5 text-primary-600" />
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Filtrele:</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                  categoryFilter === cat
+                    ? 'bg-primary-600 text-white shadow-lg scale-105'
+                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 shadow-md'
+                }`}
+              >
+                {cat === 'all' ? '🌐 Tümü' : cat === 'favorites' ? '⭐ Favoriler' : cat}
+                {cat === 'favorites' && favorites.length > 0 && ` (${favorites.length})`}
+              </button>
             ))}
           </div>
+        </div>
+
+        {/* Search Templates */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-primary-600" />
+            Arama Kategorileri
+            <span className="text-sm font-normal text-slate-500 dark:text-slate-400">({filteredTemplates.length} kategori)</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredTemplates.map((template) => (
+              <div key={template.id} className="relative group">
+                <SearchCard
+                  template={template}
+                  isSelected={selectedTemplate?.id === template.id}
+                  onSelect={handleTemplateSelect}
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(template);
+                  }}
+                  className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-all duration-300 ${
+                    favorites.some(f => f.id === template.id)
+                      ? 'bg-yellow-400 text-white scale-110'
+                      : 'bg-white/80 dark:bg-slate-700/80 text-slate-400 hover:text-yellow-500 hover:scale-110'
+                  } shadow-lg`}
+                  title={favorites.some(f => f.id === template.id) ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                >
+                  <Star className="w-4 h-4" fill={favorites.some(f => f.id === template.id) ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+            ))}
+          </div>
+          {filteredTemplates.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-slate-500 dark:text-slate-400 text-lg">Bu kategoride henüz şablon yok</p>
+            </div>
+          )}
         </div>
 
         {/* Custom Search Builder */}
@@ -130,9 +330,10 @@ function App() {
         )}
 
         {/* Footer */}
-        <div className="mt-16 text-center text-slate-500 text-sm">
+        <div className="mt-16 text-center text-slate-500 dark:text-slate-400 text-sm">
           <p>💡 İpucu: Daha iyi sonuçlar için spesifik anahtar kelimeler kullanın</p>
           <p className="mt-2">Bu araç Google'ın gelişmiş arama operatörlerini kullanır</p>
+          <p className="mt-4 text-xs">Toplam {searchTemplates.length} arama şablonu • {searchHistory.length} arama geçmişi • {favorites.length} favori</p>
         </div>
       </div>
     </div>

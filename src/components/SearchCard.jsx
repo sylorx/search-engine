@@ -1,13 +1,13 @@
 import { 
   FileText, Archive, Video, Music, Image, FolderOpen, 
   Calendar, GraduationCap, Search, Code, Database, 
-  BookOpen, Sparkles 
+  BookOpen, Sparkles, Download, Type, Box
 } from 'lucide-react';
 
 const iconMap = {
   FileText, Archive, Video, Music, Image, FolderOpen,
   Calendar, GraduationCap, Search, Code, Database,
-  BookOpen, Sparkles
+  BookOpen, Sparkles, Download, Type, Box
 };
 
 function SearchCard({ template, isSelected, onSelect }) {
@@ -25,16 +25,16 @@ function SearchCard({ template, isSelected, onSelect }) {
       </div>
       
       <div className="mb-2">
-        <span className="text-xs font-semibold text-primary-600 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">
           {template.category}
         </span>
       </div>
       
-      <h3 className="text-lg font-bold text-slate-800 mb-2">
+      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">
         {template.title}
       </h3>
       
-      <p className="text-sm text-slate-600 mb-4">
+      <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
         {template.description}
       </p>
       
@@ -42,21 +42,21 @@ function SearchCard({ template, isSelected, onSelect }) {
         {template.keywords.slice(0, 3).map((keyword, index) => (
           <span
             key={index}
-            className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full"
+            className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
           >
             {keyword}
           </span>
         ))}
         {template.keywords.length > 3 && (
-          <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+          <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">
             +{template.keywords.length - 3}
           </span>
         )}
       </div>
       
       {isSelected && (
-        <div className="mt-4 pt-4 border-t border-primary-200">
-          <span className="text-sm font-semibold text-primary-600">
+        <div className="mt-4 pt-4 border-t border-primary-200 dark:border-primary-700">
+          <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">
             ✓ Seçildi
           </span>
         </div>
