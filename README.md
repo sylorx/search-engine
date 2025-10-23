@@ -54,7 +54,7 @@ npm install
 ```
 
 3. **Geliştirme sunucusunu başlatın:**
-```bash
+```bashge
 npm run dev
 ```
 

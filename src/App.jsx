@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Search, Sparkles, Moon, Sun, History, Star, Filter, X, TrendingUp, Info } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Sparkles, Moon, Sun, History, Star, Filter, X, TrendingUp, Info, Keyboard, Download, Upload } from 'lucide-react';
 import SearchCard from './components/SearchCard';
 import QuickSearch from './components/QuickSearch';
 import CustomSearch from './components/CustomSearch';
 import StatsPanel from './components/StatsPanel';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { searchTemplates, quickSearches } from './data/searchTemplates';
 
 function App() {
@@ -20,6 +21,8 @@ function App() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [quickSearchFilter, setQuickSearchFilter] = useState('all');
   const [showAllQuickSearches, setShowAllQuickSearches] = useState(false);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const searchInputRef = useRef(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -35,6 +38,40 @@ function App() {
       document.body.classList.add('dark');
     }
   }, []);
+  
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyboard = (e) => {
+      // Ctrl + K: Focus search
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      // Ctrl + /: Show shortcuts
+      if (e.ctrlKey && e.key === '/') {
+        e.preventDefault();
+        setShowKeyboardShortcuts(true);
+      }
+      // Ctrl + D: Toggle dark mode
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        toggleDarkMode();
+      }
+      // Ctrl + H: Toggle history
+      if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        setShowHistory(!showHistory);
+      }
+      // Ctrl + F: Toggle favorites
+      if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        setShowFavorites(!showFavorites);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [showHistory, showFavorites]);
 
   // Toggle dark mode
   const toggleDarkMode = () => {
@@ -76,6 +113,57 @@ function App() {
   const clearHistory = () => {
     setSearchHistory([]);
     localStorage.removeItem('searchHistory');
+  };
+  
+  // Export settings
+  const exportSettings = () => {
+    const data = {
+      favorites,
+      searchHistory,
+      darkMode,
+      exportDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `google-search-settings-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  // Import settings
+  const importSettings = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.favorites) {
+          setFavorites(data.favorites);
+          localStorage.setItem('favorites', JSON.stringify(data.favorites));
+        }
+        if (data.searchHistory) {
+          setSearchHistory(data.searchHistory);
+          localStorage.setItem('searchHistory', JSON.stringify(data.searchHistory));
+        }
+        if (data.darkMode !== undefined) {
+          setDarkMode(data.darkMode);
+          localStorage.setItem('darkMode', data.darkMode);
+          if (data.darkMode) {
+            document.body.classList.add('dark');
+          } else {
+            document.body.classList.remove('dark');
+          }
+        }
+        alert('✅ Ayarlar başarıyla yüklendi!');
+      } catch (error) {
+        alert('❌ Ayarlar yüklenirken hata oluştu!');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleTemplateSelect = (template) => {
@@ -140,22 +228,22 @@ function App() {
           </p>
           
           {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-3 mt-6">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
             <button
               onClick={toggleDarkMode}
               className="btn-secondary py-2 px-4 flex items-center gap-2"
-              title={darkMode ? 'Açık Mod' : 'Karanlık Mod'}
+              title={darkMode ? 'Açık Mod (Ctrl+D)' : 'Karanlık Mod (Ctrl+D)'}
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              {darkMode ? 'Açık Mod' : 'Karanlık Mod'}
+              <span className="hidden sm:inline">{darkMode ? 'Açık' : 'Karanlık'}</span>
             </button>
             <button
               onClick={() => setShowHistory(!showHistory)}
               className="btn-secondary py-2 px-4 flex items-center gap-2 relative"
-              title="Arama Geçmişi"
+              title="Arama Geçmişi (Ctrl+H)"
             >
               <History className="w-5 h-5" />
-              Geçmiş
+              <span className="hidden sm:inline">Geçmiş</span>
               {searchHistory.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {searchHistory.length}
@@ -165,16 +253,37 @@ function App() {
             <button
               onClick={() => setShowFavorites(!showFavorites)}
               className="btn-secondary py-2 px-4 flex items-center gap-2 relative"
-              title="Favoriler"
+              title="Favoriler (Ctrl+F)"
             >
               <Star className="w-5 h-5" />
-              Favoriler
+              <span className="hidden sm:inline">Favoriler</span>
               {favorites.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {favorites.length}
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setShowKeyboardShortcuts(true)}
+              className="btn-secondary py-2 px-4 flex items-center gap-2"
+              title="Klavye Kısayolları (Ctrl+/)"
+            >
+              <Keyboard className="w-5 h-5" />
+              <span className="hidden sm:inline">Kısayollar</span>
+            </button>
+            <button
+              onClick={exportSettings}
+              className="btn-secondary py-2 px-4 flex items-center gap-2"
+              title="Ayarları Dışa Aktar"
+            >
+              <Download className="w-5 h-5" />
+              <span className="hidden sm:inline">Dışa Aktar</span>
+            </button>
+            <label className="btn-secondary py-2 px-4 flex items-center gap-2 cursor-pointer" title="Ayarları İçe Aktar">
+              <Upload className="w-5 h-5" />
+              <span className="hidden sm:inline">İçe Aktar</span>
+              <input type="file" accept=".json" onChange={importSettings} className="hidden" />
+            </label>
           </div>
         </div>
 
@@ -244,6 +353,21 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* Quick Search Builder - Always Visible */}
+        <div className="mb-12">
+          <CustomSearch
+            template={selectedTemplate || searchTemplates[0]}
+            onGenerate={generateQuery}
+            generatedQuery={generatedQuery}
+            onCopy={copyToClipboard}
+            onSearch={openGoogleSearch}
+            copiedId={copiedId}
+            onTemplateChange={setSelectedTemplate}
+            allTemplates={searchTemplates}
+            searchInputRef={searchInputRef}
+          />
+        </div>
 
         {/* Stats Panel */}
         {(searchHistory.length > 0 || favorites.length > 0) && (
@@ -364,25 +488,25 @@ function App() {
           )}
         </div>
 
-        {/* Custom Search Builder */}
-        {selectedTemplate && (
-          <CustomSearch
-            template={selectedTemplate}
-            onGenerate={generateQuery}
-            generatedQuery={generatedQuery}
-            onCopy={copyToClipboard}
-            onSearch={openGoogleSearch}
-            copiedId={copiedId}
-          />
-        )}
 
         {/* Footer */}
         <div className="mt-16 text-center text-slate-500 dark:text-slate-400 text-sm">
           <p>💡 İpucu: Daha iyi sonuçlar için spesifik anahtar kelimeler kullanın</p>
           <p className="mt-2">Bu araç Google'ın gelişmiş arama operatörlerini kullanır</p>
           <p className="mt-4 text-xs">Toplam {searchTemplates.length} arama şablonu • {searchHistory.length} arama geçmişi • {favorites.length} favori</p>
+          <button
+            onClick={() => setShowKeyboardShortcuts(true)}
+            className="mt-4 text-primary-600 dark:text-primary-400 hover:text-primary-700 text-xs font-semibold"
+          >
+            ⌨️ Klavye Kısayolları (Ctrl + /)
+          </button>
         </div>
       </div>
+      
+      {/* Keyboard Shortcuts Modal */}
+      {showKeyboardShortcuts && (
+        <KeyboardShortcuts onClose={() => setShowKeyboardShortcuts(false)} />
+      )}
     </div>
   );
 }

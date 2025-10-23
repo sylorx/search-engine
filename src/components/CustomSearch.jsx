@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Search, Copy, ExternalLink, Sparkles, Calendar, Share2 } from 'lucide-react';
 import ShareModal from './ShareModal';
 
-function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, copiedId }) {
+function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, copiedId, onTemplateChange, allTemplates, searchInputRef }) {
   const [keyword, setKeyword] = useState('');
   const [year, setYear] = useState('2015');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   const handleGenerate = () => {
     if (keyword.trim()) {
@@ -21,14 +22,48 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
   };
 
   return (
-    <div className="card bg-gradient-to-br from-white to-primary-50 dark:from-slate-800 dark:to-slate-700 border-2 border-primary-200 dark:border-primary-700 sticky top-4 z-20 animate-slideUp">
-      <div className="flex items-center mb-6">
-        <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400 mr-3" />
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Özel Arama Oluştur</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Seçili: {template.title}</p>
+    <div className="card bg-gradient-to-br from-white to-primary-50 dark:from-slate-800 dark:to-slate-700 border-2 border-primary-200 dark:border-primary-700 animate-slideUp">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Sparkles className="w-8 h-8 text-primary-600 dark:text-primary-400 mr-3" />
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Özel Arama Oluştur</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Seçili: {template.title}</p>
+          </div>
         </div>
+        <button
+          onClick={() => setShowTemplateSelector(!showTemplateSelector)}
+          className="btn-secondary py-2 px-4 text-sm"
+        >
+          🔄 Şablon Değiştir
+        </button>
       </div>
+      
+      {/* Template Selector */}
+      {showTemplateSelector && allTemplates && (
+        <div className="mb-6 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg max-h-64 overflow-y-auto">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Şablon Seçin:</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {allTemplates.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  onTemplateChange(t);
+                  setShowTemplateSelector(false);
+                }}
+                className={`p-3 rounded-lg text-left text-sm transition-all ${
+                  t.id === template.id
+                    ? 'bg-primary-600 text-white shadow-lg scale-105'
+                    : 'bg-white dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-500'
+                }`}
+              >
+                <p className="font-semibold">{t.title}</p>
+                <p className="text-xs opacity-75 mt-1">{t.category}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Keyword Input */}
@@ -37,12 +72,18 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
             Anahtar Kelime
           </label>
           <input
+            ref={searchInputRef}
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder="Aramak istediğiniz kelimeyi girin..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.ctrlKey) {
+                handleGenerate();
+              }
+            }}
+            placeholder="Aramak istediğiniz kelimeyi girin... (Ctrl+K)"
             className="input-field"
           />
           
