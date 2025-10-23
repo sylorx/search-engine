@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Search, Copy, ExternalLink, Sparkles, Calendar } from 'lucide-react';
+import { Search, Copy, ExternalLink, Sparkles, Calendar, Share2 } from 'lucide-react';
+import ShareModal from './ShareModal';
 
 function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, copiedId }) {
   const [keyword, setKeyword] = useState('');
   const [year, setYear] = useState('2015');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleGenerate = () => {
     if (keyword.trim()) {
@@ -106,11 +108,18 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
                   {copiedId === 'generated' ? 'Kopyalandı!' : 'Kopyala'}
                 </button>
                 <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-all"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Paylaş
+                </button>
+                <button
                   onClick={() => onSearch(generatedQuery)}
                   className="flex items-center gap-1 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm transition-all"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Google'da Ara
+                  Ara
                 </button>
               </div>
             </div>
@@ -128,6 +137,15 @@ function CustomSearch({ template, onGenerate, generatedQuery, onCopy, onSearch, 
           </code>
         </div>
       </div>
+      
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          query={generatedQuery}
+          template={template.title}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -44,7 +44,7 @@ Modern ve kullanıcı dostu bir web uygulaması ile Google'ın gelişmiş arama 
 
 1. **Depoyu klonlayın:**
 ```bash
-git clone <repo-url>
+git clone <https://github.com/sylorx/search-engine.git>
 cd search-engine
 ```
 

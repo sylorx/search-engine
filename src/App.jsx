@@ -3,6 +3,7 @@ import { Search, Sparkles, Moon, Sun, History, Star, Filter, X, TrendingUp, Info
 import SearchCard from './components/SearchCard';
 import QuickSearch from './components/QuickSearch';
 import CustomSearch from './components/CustomSearch';
+import StatsPanel from './components/StatsPanel';
 import { searchTemplates, quickSearches } from './data/searchTemplates';
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [quickSearchFilter, setQuickSearchFilter] = useState('all');
+  const [showAllQuickSearches, setShowAllQuickSearches] = useState(false);
 
   // Load from localStorage
   useEffect(() => {
@@ -113,6 +116,13 @@ function App() {
     : searchTemplates.filter(t => t.category === categoryFilter);
 
   const categories = ['all', 'favorites', ...new Set(searchTemplates.map(t => t.category))];
+  
+  // Filter quick searches
+  const quickSearchCategories = ['all', ...new Set(quickSearches.map(q => q.category))];
+  const filteredQuickSearches = quickSearchFilter === 'all' 
+    ? quickSearches 
+    : quickSearches.filter(q => q.category === quickSearchFilter);
+  const displayedQuickSearches = showAllQuickSearches ? filteredQuickSearches : filteredQuickSearches.slice(0, 6);
 
   return (
     <div className="min-h-screen py-8 px-4 transition-colors duration-500">
@@ -235,18 +245,55 @@ function App() {
           </div>
         )}
 
+        {/* Stats Panel */}
+        {(searchHistory.length > 0 || favorites.length > 0) && (
+          <StatsPanel 
+            searchHistory={searchHistory}
+            favorites={favorites}
+            onSearch={openGoogleSearch}
+          />
+        )}
+
         {/* Quick Searches */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
-            <Search className="w-6 h-6 mr-2 text-primary-600" />
-            Hızlı Aramalar
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <Search className="w-6 h-6 text-primary-600" />
+              Hızlı Aramalar
+              <span className="text-sm font-normal text-slate-500 dark:text-slate-400">({filteredQuickSearches.length} arama)</span>
+            </h2>
+            <button
+              onClick={() => setShowAllQuickSearches(!showAllQuickSearches)}
+              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 font-semibold"
+            >
+              {showAllQuickSearches ? 'Daha Az Göster' : `Tümünü Göster (${filteredQuickSearches.length})`}
+            </button>
+          </div>
+          
+          {/* Quick Search Categories */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {quickSearchCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setQuickSearchFilter(cat)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
+                  quickSearchFilter === cat
+                    ? 'bg-primary-600 text-white shadow-md scale-105'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+                }`}
+              >
+                {cat === 'all' ? '🌐 Tümü' : cat}
+              </button>
+            ))}
+          </div>
+          
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {quickSearches.map((quick, index) => (
+            {displayedQuickSearches.map((quick, index) => (
               <QuickSearch
                 key={index}
                 label={quick.label}
                 query={quick.query}
+                icon={quick.icon}
                 onCopy={copyToClipboard}
                 onSearch={openGoogleSearch}
               />
