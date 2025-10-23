@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 function AnimatedBackground() {
   const canvasRef = useRef(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -12,18 +11,20 @@ function AnimatedBackground() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // Particles
+    // Particles - daha az ve daha yavaş
     const particles = [];
-    const particleCount = 50;
+    const particleCount = 30;
     
     class Particle {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 2 - 1;
-        this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3; // Çok daha yavaş
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        // Daha soft renkler - mavi tonları
+        const hue = 200 + Math.random() * 60; // 200-260 arası (mavi-mor)
+        this.color = `hsla(${hue}, 60%, 70%, 0.4)`;
       }
       
       update() {
@@ -44,21 +45,23 @@ function AnimatedBackground() {
       }
     }
     
-    // Floating shapes
+    // Floating shapes - daha az ve daha büyük
     const shapes = [];
-    const shapeCount = 15;
+    const shapeCount = 8;
     
     class FloatingShape {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 80 + 40;
-        this.speedX = Math.random() * 0.5 - 0.25;
-        this.speedY = Math.random() * 0.5 - 0.25;
+        this.size = Math.random() * 120 + 80; // Daha büyük
+        this.speedX = (Math.random() - 0.5) * 0.15; // Çok yavaş
+        this.speedY = (Math.random() - 0.5) * 0.15;
         this.rotation = Math.random() * Math.PI * 2;
-        this.rotationSpeed = Math.random() * 0.02 - 0.01;
-        this.type = Math.floor(Math.random() * 4); // 0: circle, 1: square, 2: triangle, 3: hexagon
-        this.color = `hsla(${Math.random() * 360}, 70%, 60%, 0.1)`;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.003; // Çok yavaş dönüş
+        this.type = Math.floor(Math.random() * 3); // Sadece circle, square, hexagon
+        // Soft mavi-mor tonları
+        const hue = 200 + Math.random() * 60;
+        this.color = `hsla(${hue}, 50%, 65%, 0.06)`;
       }
       
       update() {
@@ -131,46 +134,37 @@ function AnimatedBackground() {
     // Animation loop
     let animationId;
     function animate() {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.05)';
+      // Daha soft temizleme - dark mode için kontrol
+      const isDark = document.body.classList.contains('dark');
+      ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.1)' : 'rgba(248, 250, 252, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw connections between particles
+      // Draw floating shapes first (background)
+      shapes.forEach(shape => {
+        shape.update();
+        shape.draw();
+      });
+      
+      // Draw particles with subtle connections
       particles.forEach((particle, index) => {
         particle.update();
         particle.draw();
         
-        // Connect nearby particles
+        // Connect nearby particles - daha az ve daha soft
         for (let j = index + 1; j < particles.length; j++) {
           const dx = particles[j].x - particle.x;
           const dy = particles[j].y - particle.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 150) {
-            ctx.strokeStyle = `rgba(100, 150, 255, ${1 - distance / 150})`;
+          if (distance < 120) {
+            const opacity = (1 - distance / 120) * 0.15;
+            ctx.strokeStyle = `rgba(147, 197, 253, ${opacity})`;
             ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
           }
-        }
-      });
-      
-      // Draw floating shapes
-      shapes.forEach(shape => {
-        shape.update();
-        shape.draw();
-      });
-      
-      // Mouse interaction
-      particles.forEach(particle => {
-        const dx = mousePos.x - particle.x;
-        const dy = mousePos.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < 100) {
-          particle.x -= dx / 50;
-          particle.y -= dy / 50;
         }
       });
       
@@ -191,15 +185,6 @@ function AnimatedBackground() {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [mousePos]);
-  
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
   
   return (
@@ -207,14 +192,14 @@ function AnimatedBackground() {
       <canvas
         ref={canvasRef}
         className="fixed inset-0 pointer-events-none z-0"
-        style={{ opacity: 0.6 }}
+        style={{ opacity: 0.5 }}
       />
       
-      {/* Gradient overlays */}
+      {/* Gradient overlays - daha soft ve sakin */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-400/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-purple-400/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
     </>
   );
