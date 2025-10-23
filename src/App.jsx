@@ -5,6 +5,7 @@ import QuickSearch from './components/QuickSearch';
 import CustomSearch from './components/CustomSearch';
 import StatsPanel from './components/StatsPanel';
 import KeyboardShortcuts from './components/KeyboardShortcuts';
+import AnimatedBackground from './components/AnimatedBackground';
 import { searchTemplates, quickSearches } from './data/searchTemplates';
 
 function App() {
@@ -213,8 +214,11 @@ function App() {
   const displayedQuickSearches = showAllQuickSearches ? filteredQuickSearches : filteredQuickSearches.slice(0, 6);
 
   return (
-    <div className="min-h-screen py-8 px-4 transition-colors duration-500">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen py-8 px-4 transition-colors duration-500 relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12 animate-slideUp">
           <div className="flex items-center justify-center mb-4">
